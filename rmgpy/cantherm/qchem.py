@@ -36,7 +36,9 @@ import rmgpy.constants as constants
 from rmgpy.exceptions import InputError
 from rmgpy.cantherm.common import checkConformerEnergy
 from rmgpy.statmech import IdealGasTranslation, NonlinearRotor, LinearRotor, HarmonicOscillator, Conformer
+
 ################################################################################
+
 class QchemLog:
     """
     Represent an output file from Qchem. The attribute `path` refers to the
