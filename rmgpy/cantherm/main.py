@@ -56,8 +56,10 @@ from rmgpy.data.thermo import ThermoLibrary
 from rmgpy.data.base import Entry
 from rmgpy.data.kinetics.library import KineticsLibrary
 from rmgpy.exceptions import InputError
+from rmgpy.cantherm.common import is_pdep
 
 ################################################################################
+
 
 class CanTherm:
     """
@@ -258,8 +260,10 @@ class CanTherm:
 
         # run thermo jobs (printing out thermo stuff)
         for job in self.jobList:
-            if isinstance(job,ThermoJob) or isinstance(job, StatMechJob):
+            if isinstance(job, ThermoJob):
                 job.execute(outputFile=outputFile, plot=self.plot)
+            if isinstance(job, StatMechJob):
+                job.execute(outputFile=outputFile, plot=self.plot, pdep=is_pdep(self.jobList))
 
         with open(chemkinFile, 'a') as f:
             f.write('\n')
