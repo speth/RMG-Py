@@ -44,6 +44,7 @@ comparisons.
 import cython
 from rdkit.Chem import GetPeriodicTable
 from rmgpy.exceptions import ElementError
+from rmgpy.quantity import Quantity
 
 ################################################################################
 
@@ -302,3 +303,37 @@ elementList = [
     Cs, Ba, La, Ce, Pr, Nd, Pm, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu, Hf, Ta, W, Re, Os, Ir, Pt, Au, Hg, Tl, Pb, Bi, Po, At, Rn,
     Fr, Ra, Ac, Th, Pa, U, Np, Pu, Am, Cm, Bk, Cf, Es, Fm, Md, No, Lr, Rf, Db, Sg, Bh, Hs, Mt, Ds, Rg, Cn
 ]
+
+#Bond Dissociation Energies
+#Reference: Huheey, pps. A-21 to A-34; T.L. Cottrell, "The Strengths of Chemical Bonds," 2nd ed., Butterworths, London, 1958; B. deB. Darwent, "National Standard Reference Data Series," National Bureau of Standards, No. 31, Washington, DC, 1970; S.W. Benson, J. Chem. Educ., 42, 502 (1965).
+#(C,C,1.5) was taken from an unsourced table that had similar values to those used below, should be replaced if a sourced value becomes available
+elements = ['C','N','H','O','S','Cl','Si']
+BDEDict = {('H','H',1.0):(432.0,'kJ/mol'),('H','C',1):(411.0,'kJ/mol'),
+          ('H','N',1):(386.0,'kJ/mol'), ('H','O',1.0):(459.0,'kJ/mol'),
+          ('H','S',1):(363.0,'kJ/mol'), ('H','Cl',1): (428.0,'kJ/mol'),
+          ('C','C',1):(346.0,'kJ/mol'), ('C','C',2):(602.0,'kJ/mol'),
+          ('C','C',3):(835.0,'kJ/mol'), ('C','Si',1):(318.0,'kJ/mol'),
+          ('C','N',1): (305.0,'kJ/mol'), ('C','N',2):(615.0,'kJ/mol'),
+          ('C','N',3):(887.0,'kJ/mol'), ('C','O',1):(358.0,'kJ/mol'),
+          ('C','O',2): (799.0,'kJ/mol'), ('C','O',3):(1072.0,'kJ/mol'),
+          ('C','S',1) : (272.0,'kJ/mol'), ('C','S',2):(573.0,'kJ/mol'),
+          ('C','Cl',1): (327.0,'kJ/mol'), ('Si','Si',1): (222.0,'kJ/mol'),
+          ('Si','N',1): (355.0,'kJ/mol'), ('Si','O',1):(452.0,'kJ/mol'),
+          ('Si','S',1):(293.0,'kJ/mol'), ('Si','Cl',1): (381.0,'kJ/mol'),
+          ('N','N',1): (167.0,'kJ/mol'), ('N','N',2) : (418.0,'kJ/mol'),
+          ('N','N',3) : (942.0,'kJ/mol'), ('N','O',1):(201.0,'kJ/mol'),
+          ('N','O',2) : (607.0,'kJ/mol'), ('N','Cl',1): (313.0,'kJ/mol'),
+          ('O','O',1) : (142.0, 'kJ/mol'), ('O','O',2): (494.0,'kJ/mol'),
+          ('S','O',2) : (522.0, 'kJ/mol'), ('S','S',1) : (226.0,'kJ/mol'),
+          ('S','S',2) : (425.0,'kJ/mol'), ('S','Cl',1) : (255.0,'kJ/mol'),
+          ('Cl','Cl',1) : (240.0, 'kJ/mol'), ('C','C',1.5): (518.0,'kJ/mol'),
+          ('O','S',1): (265.0,'kJ/mol')}
+
+BDEs = {}
+for key in BDEDict.keys():
+    q = Quantity(BDEDict[key]).value_si
+    BDEs[(key[0],key[1],key[2])] = q
+    BDEs[(key[1],key[0],key[2])] = q
+
+
+
