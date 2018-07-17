@@ -28,7 +28,9 @@
 ###############################################################################
 
 import numpy
+np = numpy
 from libc.math cimport exp, log, sqrt, log10
+from scipy.optimize import curve_fit
 
 cimport rmgpy.constants as constants
 import rmgpy.quantity as quantity
@@ -550,7 +552,68 @@ cdef class ArrheniusBM(KineticsModel):
             Tmax = self.Tmax,
             comment = self.comment,
         )
-
+        
+    def fitToReactions(self,rxns,w0=None,family=None,Ts=[300.0,500.0,600.0,700.0,800.0,900.0,1000.0,1100.0,1200.0,1500.0]):
+        """
+        Fit an ArrheniusBM model to a list of reactions at the given temperatures, 
+        w0 must be either given or estimated using the family object
+        """
+        assert w0 is not None or family is not None, 'either w0 or family must be specified'
+        
+        if w0 is None:
+            #estimate w0
+            w0s = family.getw0s(rxns)
+            w0 = sum(w0s)/len(w0s)
+            
+        #define optimization function
+        def kfcn(xs,lnA,n,E0):
+            out = []
+            for x in xs:
+                T = x[0]
+                dHrxn = x[1]
+                if dHrxn < -4*E0:
+                    Ea = 0.0
+                elif dHrxn > 4*E0:
+                    Ea = dHrxn
+                else:
+                    Vp = 2*w0*(2*w0+2*E0)/(2*w0-2*E0)
+                    Ea = (w0+dHrxn/2.0)*(Vp-2*w0+dHrxn)**2/(Vp**2-(2*w0)**2+dHrxn**2)
+    
+                out.append(lnA+np.log(T**n*np.exp(-Ea/(8.314*T))))
+            return out
+        
+        #get (T,dHrxn(T)) -> (Ln(k) mappings
+        xdata = []
+        ydata = []
+        for rxn in rxns:
+            for T in Ts:
+                xdata.append([T,rxn.getEnthalpyOfReaction(T)])
+                ydata.append(np.log(rxn.getRateCoefficient(T)))
+        
+        xdata = np.array(xdata)
+        ydata = np.array(ydata)
+        
+        #fit parmeters
+        params = curve_fit(kfcn,xdata,ydata,p0=[1.0,1.0,w0/10.0])
+        
+        lnA,n,E0 = params[0].tolist()
+        A = np.exp(lnA)
+        
+        #fill in parameters
+        if len(rxns[0].reactants) == 1:
+            self.A = (A,'s^-1')
+        elif len(rxns[0].reactants) == 2:
+            self.A = (A,'m^3/(mol*s)')
+            
+        self.n = n
+        self.w0 = (w0,'J/mol')
+        self.E0 = (E0,'J/mol')
+        self.Tmin = (numpy.min(Ts),"K")
+        self.Tmax = (numpy.max(Ts),"K")
+        self.comment = 'Fitted to {0} reactions at temperatures: {1}'.format(len(rxns),Ts)
+        
+        return self
+        
     cpdef bint isIdenticalTo(self, KineticsModel otherKinetics) except -2:
         """
         Returns ``True`` if kinetics matches that of another kinetics model.  Must match temperature
