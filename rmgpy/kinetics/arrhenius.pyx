@@ -35,6 +35,7 @@ from scipy.optimize import curve_fit
 cimport rmgpy.constants as constants
 import rmgpy.quantity as quantity
 from rmgpy.exceptions import KineticsError
+from rmgpy.kinetics.uncertainies import rank_accuracy_map
 ################################################################################
 
 cdef class Arrhenius(KineticsModel):
@@ -564,7 +565,7 @@ cdef class ArrheniusBM(KineticsModel):
             #estimate w0
             w0s = family.getw0s(rxns)
             w0 = sum(w0s)/len(w0s)
-            
+        
         #define optimization function
         def kfcn(xs,lnA,n,E0):
             out = []
@@ -585,16 +586,19 @@ cdef class ArrheniusBM(KineticsModel):
         #get (T,dHrxn(T)) -> (Ln(k) mappings
         xdata = []
         ydata = []
+        sigmas = []
         for rxn in rxns:
+            s = rank_accuracy_map[rxn.rank].value_si/2.0 #approximately correct the overall uncertainties to std deviations
             for T in Ts:
                 xdata.append([T,rxn.getEnthalpyOfReaction(T)])
                 ydata.append(np.log(rxn.getRateCoefficient(T)))
+                sigmas.append(s/(8.314*T))
         
         xdata = np.array(xdata)
         ydata = np.array(ydata)
         
         #fit parmeters
-        params = curve_fit(kfcn,xdata,ydata,p0=[1.0,1.0,w0/10.0])
+        params = curve_fit(kfcn,xdata,ydata,sigma=sigmas,p0=[1.0,1.0,w0/10.0])
         
         lnA,n,E0 = params[0].tolist()
         A = np.exp(lnA)
