@@ -2534,7 +2534,7 @@ class KineticsFamily(Database):
         if entry.parent:
             entry.parent.children.append(entry)
     
-    def splitReactions(self,rxns,oldlabel,newgrp,templateRxnMap):
+    def splitReactions(self,rxns,newgrp):
         """
         divides the reactions in rxns between the new
         group structure newgrp and the old structure with 
@@ -2569,7 +2569,7 @@ class KineticsFamily(Database):
         for the extension ext with name extname to the parent entry parent
         """
         rxns = templateRxnMap[parent.label]
-        new,old,newInds = self.splitReactions(rxns,parent.label,ext,templateRxnMap)
+        new,old,newInds = self.splitReactions(rxns,ext)
         if len(new) == 0:
             return np.inf,False
         elif len(old) == 0:
@@ -2787,7 +2787,8 @@ class KineticsFamily(Database):
         
         rxns = templateRxnMap[parent.label]
         
-        new,left,newInds = self.splitReactions(rxns,parent.label,ext[0],templateRxnMap)
+        
+        new,left,newInds = self.splitReactions(rxns,ext[0])
         
         compEntries = []
         newEntries = []
