@@ -2601,6 +2601,7 @@ class KineticsFamily(Database):
         grps = [parent.item]
         names = [parent.label]
         atmInds = [None]
+        firstTime = True
         
         while grps != []:
             grp = grps[-1]
@@ -2666,6 +2667,7 @@ class KineticsFamily(Database):
                         atms = grp.atoms
                         bd = grp.getBond(atms[indcr[0]],atms[indcr[1]])
                         bd.reg_dim = regVal
+                if firstTime and parent.children == []:
                             
                 #extensions being sent out
                 if typr != 'intNewBondExt' and typr != 'extNewBondExt': #these dimensions should be regularized
@@ -2728,6 +2730,9 @@ class KineticsFamily(Database):
                 grps.append(grpr)
                 names.append(namer)
                 atmInds.append(indcr)
+            
+            if firstTime:
+                firstTime=False
         
         out = []
         for x in outExts: #compile all of the valid extensions together, may be some duplicates here, but I don't think it's currently worth identifying them
