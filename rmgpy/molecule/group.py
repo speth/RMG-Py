@@ -1253,9 +1253,10 @@ class Group(Graph):
         generates extensions for specification of the type of atom defined by a given atomtype
         or set of atomtypes
         """
-        cython.declare(grps=list,Rset=set,item=AtomType,grp=Group,grpc=Group)
+        cython.declare(grps=list,labelList=list,Rset=set,item=AtomType,grp=Group,grpc=Group,k=AtomType,p=str)
         
         grps = []
+        labelList = []
         
         Rset = set(R)
         for item in R:
@@ -1269,7 +1270,9 @@ class Group(Graph):
             if len(old_atom_type ) > 1:
                 old_atom_type_str = ''
                 for k in old_atom_type:
-                    old_atom_type_str += k.label
+                    labelList.append(k.label)
+                for p in sorted(labelList):
+                    old_atom_type_str += p
             else:
                 old_atom_type_str = old_atom_type[0].label
 
@@ -1281,9 +1284,10 @@ class Group(Graph):
         """
         generates extensions for specifying if an atom is in a ring
         """
-        cython.declare(grps=list,grp=Group,grpc=Group,atom_type=list,atom_type_str=str,k=AtomType)
+        cython.declare(grps=list,labelList=list,grp=Group,grpc=Group,atom_type=list,atom_type_str=str,k=AtomType,p=str)
         
         grps = []
+        labelList = []
         
         grp = deepcopy(self)
         grpc = deepcopy(self)
@@ -1295,7 +1299,9 @@ class Group(Graph):
         if len(atom_type ) > 1:
             atom_type_str = ''
             for k in atom_type:
-                atom_type_str += k.label
+                labelList.append(k.label)
+            for p in sorted(labelList):
+                atom_type_str += p
         else:
             atom_type_str = atom_type[0].label
         
@@ -1309,6 +1315,7 @@ class Group(Graph):
         """
         
         grps = []
+        labelList = []
         
         Rset = set(Run)
         for item in Run:
@@ -1322,7 +1329,9 @@ class Group(Graph):
             if len(atom_type ) > 1:
                 atom_type_str = ''
                 for k in atom_type:
-                    atom_type_str += k.label
+                    labelList.append(k.label)
+                for p in sorted(labelList):
+                    atom_type_str += p
             else:
                 atom_type_str = atom_type[0].label
             
@@ -1337,6 +1346,8 @@ class Group(Graph):
         """
         cython.declare(newgrp=Group)
         
+        labelList = []
+        
         newgrp = deepcopy(self)
         newgrp.addBond(GroupBond(newgrp.atoms[i],newgrp.atoms[j],Rbonds))
         
@@ -1346,13 +1357,17 @@ class Group(Graph):
         if len(atom_type_i) > 1:
             atom_type_i_str = ''
             for k in atom_type_i:
-                atom_type_i_str += k.label
+                labelList.append(k.label)
+            for k in sorted(labelList):
+                atom_type_i_str += k
         else:
             atom_type_i_str = atom_type_i[0].label
         if len(atom_type_j) > 1:
             atom_type_j_str = ''
             for k in atom_type_j:
-                atom_type_j_str += k.label
+                labelList.append(k.label)
+            for p in sorted(labelList):
+                atom_type_j_str += p
         else:
             atom_type_j_str = atom_type_j[0].label
                 
@@ -1368,6 +1383,8 @@ class Group(Graph):
         """
         cython.declare(GA=GroupAtom,newgrp=Group,j=int)
         
+        labelList = []
+        
         GA = GroupAtom([atomTypes['R!H']])
         newgrp = deepcopy(self)
         newgrp.addAtom(GA)
@@ -1377,7 +1394,9 @@ class Group(Graph):
         if len(atom_type ) > 1:
             atom_type_str = ''
             for k in atom_type:
-                atom_type_str += k.label
+                labelList.append(k.label)
+            for p in sorted(labelList):
+                atom_type_str += p
         else:
             atom_type_str = atom_type[0].label
         
@@ -1387,8 +1406,9 @@ class Group(Graph):
         """
         generates extensions for the specification of bond order for a given bond
         """
-        cython.declare(grps=list,Rbset=set,bd=float,grp=Group,grpc=Group)
+        cython.declare(grps=list,labelList=list,Rbset=set,bd=float,grp=Group,grpc=Group)
         grps = []
+        labelList = []
         Rbset = set(Rbonds)
         bdict = {1:'-',2:'=',3:'#',1.5:'-='}
         for bd in Rbonds:
@@ -1405,13 +1425,17 @@ class Group(Graph):
             if len(atom_type_i) > 1:
                 atom_type_i_str = ''
                 for k in atom_type_i:
-                    atom_type_i_str += k.label
+                    labelList.append(k.label)
+                for p in sorted(labelList):
+                    atom_type_i_str += p
             else:
                 atom_type_i_str = atom_type_i[0].label
             if len(atom_type_j) > 1:
                 atom_type_j_str = ''
                 for k in atom_type_j:
-                    atom_type_j_str += k.label
+                    labelList.append(k.label)
+                for p in sorted(labelList):
+                    atom_type_j_str += p
             else:
                 atom_type_j_str = atom_type_j[0].label
             
