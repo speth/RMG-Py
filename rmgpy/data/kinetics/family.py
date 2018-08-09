@@ -3074,6 +3074,7 @@ class KineticsFamily(Database):
             structs = mol.generate_resonance_structures()
             
             if any([x.isSubgraphIsomorphic(root,generateInitialMap=True) for x in structs]):
+                rxns[i].is_forward = True
                 continue
             else:
                 try:
@@ -3101,6 +3102,8 @@ class KineticsFamily(Database):
                 
                 
                 rrev = Reaction(reactants=[Species(molecule=[p]) for p in products],products=rxns[i].reactants,kinetics=rxns[i].generateReverseRateCoefficient())
+                
+                rrev.is_forward = False
                 
                 if estimateThermo:
                     for r in rrev.reactants:
