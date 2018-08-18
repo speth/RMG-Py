@@ -1273,7 +1273,7 @@ class Group(Graph):
             else:
                 old_atom_type_str = old_atom_type[0].label
 
-            grps.append((grp,grpc,basename+'_'+old_atom_type_str+'->'+item.label,'atomExt',(i,)))
+            grps.append((grp,grpc,basename+'_'+str(i)+old_atom_type_str+'->'+item.label,'atomExt',(i,)))
             
         return grps
     
@@ -1302,7 +1302,7 @@ class Group(Graph):
         else:
             atom_type_str = atom_type[0].label
         
-        grps.append((grp,grpc,basename+'_'+atom_type_str+'-inRing','ringExt',(i,)))
+        grps.append((grp,grpc,basename+'_'+str(i)+atom_type_str+'-inRing','ringExt',(i,)))
             
         return grps
     
@@ -1332,7 +1332,7 @@ class Group(Graph):
             else:
                 atom_type_str = atom_type[0].label
             
-            grps.append((grp,grpc,basename+'_'+atom_type_str+'-u'+str(item),'elExt',(i,)))
+            grps.append((grp,grpc,basename+'_'+str(i)+atom_type_str+'-u'+str(item),'elExt',(i,)))
             
         return grps
     
@@ -1371,7 +1371,7 @@ class Group(Graph):
         if len(newgrp.split()) >= Nsplits: #if this formed a bond between two seperate groups in the 
             return []
         else:
-            return [(newgrp,None,basename+'_Int-'+atom_type_i_str+'-'+atom_type_j_str,'intNewBondExt',(i,j))]
+            return [(newgrp,None,basename+'_Int-'+str(i)+atom_type_i_str+'-'+str(j)+atom_type_j_str,'intNewBondExt',(i,j))]
     
     def specifyExternalNewBondExtensions(self,i,basename,Rbonds):
         """
@@ -1397,7 +1397,7 @@ class Group(Graph):
         else:
             atom_type_str = atom_type[0].label
         
-        return [(newgrp,None,basename+'_Ext-'+atom_type_str+'-R','extNewBondExt',(len(newgrp.atoms)-1,))]
+        return [(newgrp,None,basename+'_Ext-'+str(i)+atom_type_str+'-R','extNewBondExt',(len(newgrp.atoms)-1,))]
     
     def specifyBondExtensions(self,i,j,basename,Rbonds):
         """
@@ -1436,7 +1436,7 @@ class Group(Graph):
             else:
                 atom_type_j_str = atom_type_j[0].label
             
-            grps.append((grp,grpc,basename+'_Sp-'+atom_type_i_str+bdict[bd]+atom_type_j_str,'bondExt',(i,j)))
+            grps.append((grp,grpc,basename+'_Sp-'+str(i)+atom_type_i_str+bdict[bd]+str(j)+atom_type_j_str,'bondExt',(i,j)))
         
         return grps
 
