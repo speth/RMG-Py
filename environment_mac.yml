@@ -41,4 +41,5 @@ dependencies:
   # - muq
   - pymongo
   - mpmath
+  - scikit-learn
   
