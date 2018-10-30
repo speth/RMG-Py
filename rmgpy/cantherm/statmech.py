@@ -732,8 +732,16 @@ def applyEnergyCorrections(E0, modelChemistry, atoms, bonds,
             elif modelChemistry == 'b3lyp/6-311+g(3df,2p)':  # Calculated atomic energies
                 atomEnergies = {'H':-0.502155915123 + SOC['H'], 'C':-37.8574709934 + SOC['C'], 'N':-54.6007233609 + SOC['N'], 'O':-75.0909131284 + SOC['O'], 'P':-341.281730319 + SOC['P'], 'S':-398.134489850 + SOC['S']}
 
-            elif modelChemistry == 'MRCI+Davidson/aug-cc-pV(T+d)Z':  # Calculated atomic energies (unfitted)
-                atomEnergies = {'H':-0.49982118 + SOC['H'], 'C':-37.78321274 + SOC['C'], 'N':-54.51729444 + SOC['N'], 'O':-74.97847534 + SOC['O'], 'S':-397.6571654 + SOC['S']}
+            elif modelChemistry == 'mrci/aug-cc-pvtz':  # Calculated atomic energies using an uncontracted basis set (unfitted)
+                atomEnergies = {'H':-0.49982132 + SOC['H'], 'C':-37.77733057 + SOC['C'], 'N':-54.50685339 + SOC['N'], 'O':-74.95843922 + SOC['O'], 'S':-397.64713217 + SOC['S']}
+            elif modelChemistry == 'mrci+davidson/aug-cc-pvtz':  # Calculated atomic energies using an uncontracted basis set (unfitted)
+                # The Davidson correction accounts for quadruplple excitations (also called MRCI+Q)
+                atomEnergies = {'H':-0.49982132 + SOC['H'], 'C':-37.77998045 + SOC['C'], 'N':-54.51109209 + SOC['N'], 'O':-74.96430914 + SOC['O'], 'S':-397.65725529 + SOC['S']}
+            elif modelChemistry == 'mrci/aug-cc-pv(t+d)z':  # Calculated atomic energies using an uncontracted basis set (unfitted)
+                atomEnergies = {'H':-0.49982132 + SOC['H'], 'C':-37.77733057 + SOC['C'], 'N':-54.50685339 + SOC['N'], 'O':-74.95843922 + SOC['O'], 'S':-397.64795535 + SOC['S']}
+            elif modelChemistry == 'mrci+davidson/aug-cc-pv(t+d)z':  # Calculated atomic energies using an uncontracted basis set (unfitted)
+                # The Davidson correction accounts for quadruple excitations (also called MRCI+Q)
+                atomEnergies = {'H':-0.49982132 + SOC['H'], 'C':-37.77998045 + SOC['C'], 'N':-54.51109209 + SOC['N'], 'O':-74.96430914 + SOC['O'], 'S':-397.65836619 + SOC['S']}
 
             else:
                 raise Exception('Unknown model chemistry "{}".'.format(modelChemistry))
@@ -822,6 +830,7 @@ def applyEnergyCorrections(E0, modelChemistry, atoms, bonds,
                 logging.warning('Ignored unknown bond type {0!r}.'.format(symbol))
 
     return E0
+
 
 class Log(object):
     """
@@ -1078,6 +1087,7 @@ def projectRotors(conformer, F, rotors, linear, TS):
             logging.debug(numpy.sqrt(eig[i])/(2 * math.pi * constants.c * 100))
         
     return numpy.sqrt(eig[-Nvib:]) / (2 * math.pi * constants.c * 100)
+
 
 def assign_frequency_scale_factor(model_chemistry):
     """
