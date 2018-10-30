@@ -260,7 +260,7 @@ class QchemLog:
         modes = mmass + rot + freq
         return Conformer(E0=(E0*0.001,"kJ/mol"), modes=modes, spinMultiplicity=spinMultiplicity, opticalIsomers=opticalIsomers)
               
-    def loadEnergy(self,frequencyScaleFactor=1.):
+    def loadEnergy(self, frequencyScaleFactor=1., model_chemistry=''):
         """
         Load the energy in J/mol from a Qchem log file.  Only the last energy 
         in the file is returned. The zero-point energy is *not* included in 

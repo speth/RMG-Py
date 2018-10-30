@@ -391,7 +391,7 @@ class StatMechJob(object):
         if E0_withZPE is None:
             # The E0 that is read from the log file is without the ZPE and corresponds to E_elec
             if E0 is None:
-                E0 = energyLog.loadEnergy(self.frequencyScaleFactor)
+                E0 = energyLog.loadEnergy(self.frequencyScaleFactor, self.modelChemistry)
             else:
                 E0 = E0 * constants.E_h * constants.Na         # Hartree/particle to J/mol
             if not self.applyAtomEnergyCorrections:

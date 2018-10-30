@@ -260,58 +260,89 @@ class MolproLog:
         f.close()
         return Conformer(E0=(E0*0.001,"kJ/mol"), modes=modes, spinMultiplicity=spinMultiplicity, opticalIsomers=opticalIsomers)
 
-    def loadEnergy(self,frequencyScaleFactor=1.):
+    def loadEnergy(self, frequencyScaleFactor=1., model_chemistry=''):
         """
-        Return the f12 energy in J/mol from a Molpro Logfile of a CCSD(T)-f12 job.
-        This function determines which energy (f12a or f12b) to use based on the basis set,
+        Return the f12 energy in J/mol from a Molpro Logfile of a CCSD(T)-f12 job,
+        or the MRCI (or MRCI+Davidson) energy from a respective job
+        This function determines which energy (f12a / f12b / MRCI) to use,
         which it will parse out of the Molpro file. For the vtz and dtz basis sets f12a is
-        better approximation, but for higher basis sets f12b is a better approximation
+        better approximation, but for higher basis sets f12b is a better approximation.
         """
         f = open(self.path, 'r')
-        line=f.readline()
+        line = f.readline()
         
-        #search for basisSet
-        while line!='':
+        # Determine keywords to look for. Currently CCSD(T)-F12a, CCSD(T)-F12b,
+        # MRCI, MRCI+Davidson are supported
+        f12a, f12b, mrci = False, False, False
+        while line != '':
             if 'basis' in line.lower():
                 if 'vtz' in line.lower() or 'vdz' in line.lower():
-                    f12a=True
-                else: f12a=False
+                    f12a = True
+                    # MRCI could also have a vdz/vtz basis, so don't break
+                elif any(high_basis in line.lower() for high_basis in ['vqz', 'v5z', 'v6z', 'v7z', 'v8z']):
+                    f12b = True
+                    # MRCI could also have a v(4+)z basis, so don't break
+            elif 'mrci' in line.lower():
+                mrci = True
+                f12a, f12b = False, False
                 break
+            elif 'point group' in line.lower():
+                # we expect to already know the method by this point, so break if possible, but don't throw an error yet
+                if any([mrci, f12a, f12b]):
+                    break
             line=f.readline()
-        else: raise Exception('Could not find basis set in Molpro File')
-        #search for energy
-        E0=None
+        else:
+            raise ValueError('Could not determine type of calculation. Currently, CCSD(T)-F12a, CCSD(T)-F12b,'
+                             ' MRCI, MRCI+Davidson are supported')
+        # search for energy
+        E0 = None
         if f12a:
-            while line!='':
+            while line != '':
                 if ('RHF-UCCSD(T)-F12a energy' in line
                     or 'RHF-RCCSD(T)-F12a energy' in line
-                    or 'CCSD(T)-F12a total energy  ' in line):
-                    E0=float(line.split()[-1])
-                    break
+                        or 'CCSD(T)-F12a total energy  ' in line):
+                        E0 = float(line.split()[-1])
+                        break
                 if 'Electronic Energy at 0' in line:
-                    E0=float(line.split()[-2])
+                    E0 = float(line.split()[-2])
                     break
                 line=f.readline()
-        else:
-            while line!='':
+        elif f12b:
+            while line != '':
                 if ('RHF-UCCSD(T)-F12b energy' in line
                     or 'RHF-RCCSD(T)-F12b energy' in line
-                    or 'CCSD(T)-F12b total energy  ' in line):
-                    E0=float(line.split()[-1])
-                    break
+                        or 'CCSD(T)-F12b total energy  ' in line):
+                        E0 = float(line.split()[-1])
+                        break
                 if 'Electronic Energy at 0' in line:
-                    E0=float(line.split()[-2])
+                    E0 = float(line.split()[-2])
                     break
                 line=f.readline()
-
+        elif mrci and 'mrci+davidson' in model_chemistry.lower():
+            while line != '':
+                if '(Davidson, relaxed reference)' in line:
+                    E0 = float(line.split()[3])
+                    break
+                line=f.readline()
+        elif mrci and 'mrci' in model_chemistry.lower():  # 'mrci+davidson' is not in the model chemistry
+            while line != '':
+                if 'MRCI            MULTI           HF-SCF' in line:
+                    line = f.readline()
+                    E0 = float(line.split()[0])
+                    break
+                line = f.readline()
+        else:
+            raise ValueError('Could not determine type of calculation. Currently, CCSD(T)-F12a, CCSD(T)-F12b,'
+                             ' MRCI, MRCI+Davidson are supported')
         f.close()
-        logging.debug('Molpro energy found is {0} hartree'.format(E0))
-        #multiply E0 by correct constants
+        logging.debug('Molpro energy found is {0} Hartree'.format(E0))
+        # multiply E0 by correct constants
         if E0 is not None:
             E0 = E0 * constants.E_h * constants.Na
             logging.debug('Molpro energy found is {0} J/mol'.format(E0))
             return E0
-        else: raise Exception('Unable to find energy in Molpro log file.')
+        else:
+            raise Exception('Unable to find energy in Molpro log file.')
 
     def loadZeroPointEnergy(self):
         """

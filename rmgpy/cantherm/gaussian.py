@@ -246,7 +246,7 @@ class GaussianLog:
 
         return Conformer(E0=(E0*0.001,"kJ/mol"), modes=modes, spinMultiplicity=spinMultiplicity, opticalIsomers=opticalIsomers)
 
-    def loadEnergy(self,frequencyScaleFactor=1.):
+    def loadEnergy(self, frequencyScaleFactor=1., model_chemistry=''):
         """
         Load the energy in J/mol from a Gaussian log file. The file is checked 
         for a complete basis set extrapolation; if found, that value is 
