@@ -91,6 +91,9 @@ Model Chemistry                                  AEC   BC   SOC  Freq Scale Supp
 ``'BMK/6-311G(2d,d,p)'``                          v    v    v               H, C, N, O, P, S
 ``'B3LYP/6-311+G(3df,2p)'``                       v    v    v    v (0.967)  H, C, N, O, P, S
 ``'B3LYP/6-31G**'``                               v    v         v (0.961)  H, C, O, S
+``'MRCI/aug-cc-pVTZ'``                            v         v               H, C, N, O, S
+``'MRCI+Davidson/aug-cc-pVTZ'``                   v         v               H, C, N, O, S
+``'MRCI/aug-cc-pV(T+d)Z'``                        v         v               H, C, N, O, S
 ``'MRCI+Davidson/aug-cc-pV(T+d)Z'``               v         v               H, C, N, O, S
 ================================================ ===== ==== ==== ========== ====================
 
