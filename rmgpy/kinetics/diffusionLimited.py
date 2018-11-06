@@ -84,13 +84,15 @@ class DiffusionLimited(object):
                 k_diff = self.getDiffusionLimit(T, reaction, forward=True)
                 k_eff = k_forward*k_diff/(k_forward+k_diff)
             else: # 2 or 3 products
-                if Keq > 1.0: # forward rate is faster and thus limited
-                    k_diff = self.getDiffusionLimit(T, reaction, forward=True)
-                    k_eff = k_forward*k_diff/(k_forward+k_diff)
-                else: # reverse rate is faster and thus limited
-                    k_diff = self.getDiffusionLimit(T, reaction, forward=False)
-                    k_eff_reverse = k_reverse*k_diff/(k_reverse+k_diff)
-                    k_eff = k_eff_reverse * Keq
+                kf_diff = self.getDiffusionLimit(T,reaction,forward=True)
+                krev_diff = self.getDiffusionLimit(T,reaction,forward=False)
+                kff = k_forward*kf_diff/(k_forward+kf_diff)
+                krevr = k_reverse*krev_diff/(k_reverse+krev_diff)
+                kfr = Keq*krevr
+                if kff > kfr:
+                    k_eff = kfr
+                else:
+                    k_eff = kff
         return k_eff
 
     def getDiffusionFactor(self, reaction, T):
