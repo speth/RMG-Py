@@ -211,6 +211,7 @@ class QchemLog:
                         if frequencies[0] < 0.0:
                             frequencies = frequencies[1:]
 
+                        unscaled_frequencies = frequencies
                         vibration = HarmonicOscillator(frequencies=(frequencies,"cm^-1"))
                         # modes.append(vibration)
                         freq.append(vibration)
@@ -260,7 +261,8 @@ class QchemLog:
         # Close file when finished
         f.close()
         modes = mmass + rot + freq
-        return Conformer(E0=(E0*0.001,"kJ/mol"), modes=modes, spinMultiplicity=spinMultiplicity, opticalIsomers=opticalIsomers)
+        return Conformer(E0=(E0*0.001,"kJ/mol"), modes=modes, spinMultiplicity=spinMultiplicity,
+                         opticalIsomers=opticalIsomers), unscaled_frequencies
 
     def loadEnergy(self, frequencyScaleFactor=1.):
         """
