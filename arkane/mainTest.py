@@ -35,6 +35,7 @@ This script contains unit tests of the :mod:`arkane.main` module.
 import unittest
 import os
 import shutil
+from nose.plugins.attrib import attr
 
 import rmgpy
 from arkane import Arkane
@@ -42,22 +43,23 @@ from arkane import Arkane
 ################################################################################
 
 
+@attr('functional')
 class TestArkaneExamples(unittest.TestCase):
     """
     Run all of Arkane's examples, and report which one failed
     """
     @classmethod
-    def setUp(self):
+    def setUpClass(cls):
         """A function that is run ONCE before all unit tests in this class."""
-        self.base_path = os.path.join(os.path.dirname(os.path.dirname(rmgpy.__file__)), 'examples', 'arkane')
-        self.failed = []
-        self.example_types = ['species', 'reactions', 'networks']
+        cls.base_path = os.path.join(os.path.dirname(os.path.dirname(rmgpy.__file__)), 'examples', 'arkane')
+        cls.failed = []
+        cls.example_types = ['species', 'reactions', 'networks']
 
     def test_arkane_examples(self):
         for example_type in self.example_types:
             example_type_path = os.path.join(self.base_path, example_type)
             examples = []
-            for (dirpath, dirnames, filenames) in os.walk(example_type_path):
+            for (dirpath, dirnames, filenames) in os.listdir(example_type_path):
                 examples.extend(dirnames)
                 break
             for example in examples:
@@ -71,39 +73,38 @@ class TestArkaneExamples(unittest.TestCase):
                     if 'execution terminated' in line:
                         break
                 else:
-                    self.failed.append([example_type, example + 'FreeRotor'])
+                    self.failed.append([example_type, example])
         error_message = 'Arkane example(s) failed: '
-        for type_name_tuple in self.failed:
-            error_message += '{1} in {0}; '.format(type_name_tuple[0], type_name_tuple[1])
-        self.assertTrue(len(self.failed) == 0, error_message)
+        for example_type, example_name in self.failed:
+            error_message += '{1} in {0}; '.format(example_name, example_type)
+        self.assertFalse(self.failed, error_message)
 
     @classmethod
-    def tearDown(self):
+    def tearDownClass(cls):
         """A function that is run ONCE after all unit tests in this class."""
-        self.extensions_to_delete = ['pdf', 'csv', 'txt', 'inp']
-        self.files_to_delete = ['arkane.log', 'output.py']
-        self.files_to_keep = ['README.txt']  # files to keep that have extentions marked for deletion
-        self.base_path = os.path.join(os.path.dirname(os.path.dirname(rmgpy.__file__)), 'examples', 'arkane')
-        self.example_types = ['species', 'reactions', 'networks']
-        for example_type in self.example_types:
-            example_type_path = os.path.join(self.base_path, example_type)
+        cls.extensions_to_delete = ['pdf', 'csv', 'txt', 'inp']
+        cls.files_to_delete = ['arkane.log', 'output.py']
+        cls.files_to_keep = ['README.txt']  # files to keep that have extentions marked for deletion
+        cls.base_path = os.path.join(os.path.dirname(os.path.dirname(rmgpy.__file__)), 'examples', 'arkane')
+        cls.example_types = ['species', 'reactions', 'networks']
+        for example_type in cls.example_types:
+            example_type_path = os.path.join(cls.base_path, example_type)
             examples = []
-            for (dirpath, dirnames, filenames) in os.walk(example_type_path):
+            for (dirpath, dirnames, filenames) in os.listdir(example_type_path):
                 examples.extend(dirnames)
                 break
             for example in examples:
                 # clean working folder from all previous test output
                 example_path = os.path.join(example_type_path, example)
-                dirs = [d for d in os.listdir(example_path)
-                        if not os.path.isfile(os.path.join(example_path, d))]
-                for d in dirs:
-                    shutil.rmtree(os.path.join(example_path, d, ''))
-                files = [f for f in os.listdir(example_path) if os.path.isfile(os.path.join(example_path, f))]
-                for f in files:
-                    extension = f.split('.')[-1]
-                    if f in self.files_to_delete or\
-                            (extension in self.extensions_to_delete and f not in self.files_to_keep):
-                        os.remove(os.path.join(example_path, f))
+                for name in os.listdir(example_path):
+                    if os.path.isfile(name):
+                        extension = name.split('.')[-1]
+                        if name in cls.files_to_delete or\
+                                (extension in cls.extensions_to_delete and name not in cls.files_to_keep):
+                            os.remove(os.path.join(example_path, name))
+                    else:
+                        # This is a sub-directory. remove.
+                    shutil.rmtree(os.path.join(example_path, name, ''))
 
 
 if __name__ == '__main__':
